@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Support Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Welcome to the Support Dashboard</h1>
+    <p>Manage maintenance tasks and view support-related details.</p>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Manage Maintenance</h3>
+            <a href="{{ url_for('support.manage_maintenance') }}" class="btn">Manage Maintenance</a>
+        </div>
+        <!-- Add more sections for other support-related tasks as needed -->
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Welcome to the Admin Dashboard</h1>
+    <p>Manage all aspects of the Carsharing System.</p>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Manage Users</h3>
+            
+            <a class="btn" href="{{ url_for('admin.manage_users') }}">Go to Users Management</a>
+        </div>
+        <div class="card">
+            <h3>Manage Cars</h3>
+           
+            <a class="btn" href="{{ url_for('admin.manage_cars') }}">Go to Cars Management</a>
+        </div>
+        <div class="card">
+            <h3>Manage Rentals</h3>
+            
+            <a class="btn" href="{{ url_for('admin.manage_rentals') }}">Go to Rentals Management</a>
+        </div>
+        <div class="card">
+            <h3>Manage Tariffs</h3>
+            
+            <a class="btn" href="{{ url_for('admin.manage_tariffs') }}">Go to Tariffs Management</a>
+        </div>
+        <div class="card">
+            <h3>Manage  Maintenance</h3>
+            
+            <a class="btn" href="{{ url_for('admin.manage_maintenance') }}">Go to Tariffs Management</a>
+        </div>
+        <div class="card">
+            <h3>Manage Payments</h3>
+            
+            <a class="btn" href="{{ url_for('admin.manage_payments') }}">Go to Payments Management</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

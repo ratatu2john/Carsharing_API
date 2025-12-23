@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Cars{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manage Cars</h1>
+    <p>Here you can add, edit, or remove cars from the fleet.</p>
+
+    <button id="addCarBtn" class="btn">Add Car</button>
+
+    <div class="cars-container">
+        <div class="cars-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Car ID</th>
+                        <th>Mark</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Number</th>
+                        <th>Geoposition</th>
+                        <th>Status</th>
+                        <th>Fuel</th>
+                        <th>Mileage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="carsTableBody">
+                    {% for car in cars %}
+                    <tr id="car-{{ car.id }}">
+                        <td>{{ car.id }}</td>
+                        <td>{{ car.mark }}</td>
+                        <td>{{ car.model }}</td>
+                        <td>{{ car.year }}</td>
+                        <td>{{ car.number }}</td>
+                        <td>{{ car.geoposition }}</td>
+                        <td>{{ car.status }}</td>
+                        <td>{{ car.fuel }}</td>
+                        <td>{{ car.mileage }}</td>
+                        <td>
+                            <button class="deleteCarBtn btn btn-danger" data-id="{{ car.id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Car Modal -->
+<div id="addCarModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Car</h2>
+        <form id="addCarForm">
+            <label for="mark">Mark:</label>
+            <input type="text" id="mark" name="mark" required>
+            <label for="model">Model:</label>
+            <input type="text" id="model" name="model" required>
+            <label for="year">Year:</label>
+            <input type="number" id="year" name="year" required>
+            <label for="number">Number:</label>
+            <input type="text" id="number" name="number" required>
+            <label for="geoposition">Geoposition:</label>
+            <input type="text" id="geoposition" name="geoposition" required>
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" required>
+            <label for="fuel">Fuel:</label>
+            <input type="text" id="fuel" name="fuel" required>
+            <label for="mileage">Mileage:</label>
+            <input type="number" id="mileage" name="mileage" required>
+            <button type="submit" class="btn">Add Car</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Modal handling and form submission for Cars
+document.getElementById("addCarBtn").addEventListener("click", function() {
+    document.getElementById("addCarModal").style.display = "block";
+});
+document.querySelector(".close").addEventListener("click", function() {
+    document.getElementById("addCarModal").style.display = "none";
+});
+window.addEventListener("click", function(event) {
+    if (event.target === document.getElementById("addCarModal")) {
+        document.getElementById("addCarModal").style.display = "none";
+    }
+});
+document.getElementById("addCarForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const response = await fetch('/cars/add', {
+        method: 'POST',
+        body: new URLSearchParams(formData),
+    });
+    if (response.ok) {
+        location.reload();
+    } else {
+        alert("Failed to add car.");
+    }
+});
+
+// Deleting car record
+document.querySelectorAll('.deleteCarBtn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const carId = btn.getAttribute("data-id");
+        const response = await fetch(`/cars/delete-car/${carId}`, {
+            method: 'DELETE',
+        });
+        if (response.ok) {
+            document.getElementById(`car-${carId}`).remove();
+        } else {
+            alert("Failed to delete car.");
+        }
+    });
+});
+</script>
+
+{% endblock %}

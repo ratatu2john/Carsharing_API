@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Clients{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manage Clients</h1>
+    <p>Here you can add, edit, or remove clients.</p>
+
+    <!-- Button to open modal for adding client -->
+    <button id="addClientBtn" class="btn">Add Client</button>
+
+    <!-- Clients Table -->
+    <div class="clients-container">
+        <div class="clients-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Full Name</th>
+                        <th>Birth Date</th>
+                        <th>Phone Number</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                    {% for client in clients %}
+                    <tr id="client-{{ client.client_id }}">
+                        <td>{{ client.client_id }}</td>
+                        <td>{{ client.full_name }}</td>
+                        <td>{{ client.birth_date }}</td>
+                        <td>{{ client.phone_number }}</td>
+                        <td>{{ client.email }}</td>
+                        <td>
+                            <!-- Delete button for client -->
+                            <button class="deleteClientBtn btn btn-danger" data-id="{{ client.client_id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for adding client -->
+<div id="addClientModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Client</h2>
+        <form id="addClientForm">
+            <label for="full_name">Full Name:</label>
+            <input type="text" id="full_name" name="full_name" required>
+            
+            <label for="birth_date">Birth Date:</label>
+            <input type="date" id="birth_date" name="birth_date" required>
+            
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" id="phone_number" name="phone_number" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="passport_details">Passport Details:</label>
+            <input type="text" id="passport_details" name="passport_details" required>
+            
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required>
+            
+            <button type="submit" class="btn">Add Client</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Deleting client record
+document.querySelectorAll('.deleteClientBtn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const clientId = btn.getAttribute("data-id");
+        const response = await fetch(`/clients/delete-client/${clientId}`, {
+            method: 'DELETE',
+        });
+        if (response.ok) {
+            document.getElementById(`client-${clientId}`).remove();
+        } else {
+            alert("Failed to delete client.");
+        }
+    });
+});
+
+// Modal handling for adding client
+document.getElementById("addClientBtn").addEventListener("click", function() {
+    document.getElementById("addClientModal").style.display = "block";
+});
+
+document.querySelector(".close").addEventListener("click", function() {
+    document.getElementById("addClientModal").style.display = "none";
+});
+
+window.addEventListener("click", function(event) {
+    if (event.target === document.getElementById("addClientModal")) {
+        document.getElementById("addClientModal").style.display = "none";
+    }
+});
+
+// Handle the form submission for adding client
+document.getElementById("addClientForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const clientData = {};
+    formData.forEach((value, key) => {
+        clientData[key] = value;
+    });
+
+    const response = await fetch('/clients/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clientData),
+    });
+
+    if (response.ok) {
+        location.reload();
+    } else {
+        alert("Failed to add client.");
+    }
+});
+</script>
+
+{% endblock %}

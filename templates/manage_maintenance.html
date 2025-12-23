@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Maintenance{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manage Maintenance</h1>
+    <p>Here you can add, edit, or remove maintenance records for the cars.</p>
+
+    <button id="addMaintenanceBtn" class="btn">Add Maintenance</button>
+
+    <div class="maintenance-container">
+        <div class="maintenance-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Maintenance ID</th>
+                        <th>Car ID</th>
+                        <th>Maintenance Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenanceTableBody">
+                    {% for maintenance in maintenances %}
+                    <tr id="maintenance-{{ maintenance.maintenance_id }}">
+                        <td>{{ maintenance.maintenance_id }}</td>
+                        <td>{{ maintenance.car_id }}</td>
+                        <td>{{ maintenance.maintenance_date }}</td>
+                        <td>{{ maintenance.maintenance_type }}</td>
+                        <td>{{ maintenance.status }}</td>
+                        <td>{{ maintenance.notes }}</td>
+                        <td>
+                            <button class="deleteMaintenanceBtn btn btn-danger" data-id="{{ maintenance.maintenance_id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Maintenance Modal -->
+<div id="addMaintenanceModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Maintenance</h2>
+        <form id="addMaintenanceForm">
+            <label for="car_id">Car ID:</label>
+            <input type="text" id="car_id" name="car_id" required>
+            <label for="maintenance_date">Maintenance Date:</label>
+            <input type="date" id="maintenance_date" name="maintenance_date" required>
+            <label for="maintenance_type">Maintenance Type:</label>
+            <input type="text" id="maintenance_type" name="maintenance_type" required>
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" required>
+            <label for="notes">Notes:</label>
+            <input type="text" id="notes" name="notes">
+            <button type="submit" class="btn">Add Maintenance</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Modal handling and form submission for Maintenance
+    document.getElementById("addMaintenanceBtn").addEventListener("click", function() {
+        document.getElementById("addMaintenanceModal").style.display = "block";
+    });
+    document.querySelector(".close").addEventListener("click", function() {
+        document.getElementById("addMaintenanceModal").style.display = "none";
+    });
+    window.addEventListener("click", function(event) {
+        if (event.target === document.getElementById("addMaintenanceModal")) {
+            document.getElementById("addMaintenanceModal").style.display = "none";
+        }
+    });
+    document.getElementById("addMaintenanceForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch('/maintenance_routes/add', {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert("Failed to add maintenance.");
+        }
+    });
+
+    // Deleting maintenance record
+    document.querySelectorAll('.deleteMaintenanceBtn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const maintenanceId = btn.getAttribute("data-id");
+            const response = await fetch(`/maintenance_routes/delete-maintenance/${maintenanceId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                document.getElementById(`maintenance-${maintenanceId}`).remove();
+            } else {
+                alert("Failed to delete maintenance.");
+            }
+        });
+    });
+</script>
+
+{% endblock %}

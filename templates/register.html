@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <h1>Register</h1>
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        <!-- User input fields -->
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <!-- Role selection -->
+        <label for="role">Select Role</label>
+        <div class="role-select">
+            <label>
+                <input type="radio" name="role" value="client" required>
+                <span>Client</span>
+            </label>
+            <label>
+                <input type="radio" name="role" value="admin">
+                <span>Admin</span>
+            </label>
+            <label>
+                <input type="radio" name="role" value="support">
+                <span>Support</span>
+            </label>
+        </div>
+
+        <!-- Client-specific details -->
+        <div id="client-details" class="user-details" style="display: none;">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name">
+
+            <label for="birth_date">Birth Date</label>
+            <input type="date" id="birth_date" name="birth_date">
+
+            <label for="phone_number">Phone Number</label>
+            <input type="tel" id="phone_number" name="phone_number">
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email">
+
+            <label for="passport_details">Passport Details</label>
+            <input type="text" id="passport_details" name="passport_details">
+
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address">
+        </div>
+
+        <!-- Admin-specific details -->
+        <div id="admin-details" class="user-details" style="display: none;">
+            <label for="full_name_admin">Full Name</label>
+            <input type="text" id="full_name_admin" name="full_name">
+        </div>
+
+        <!-- Support-specific details -->
+        <div id="support-details" class="user-details" style="display: none;">
+            <label for="full_name_support">Full Name</label>
+            <input type="text" id="full_name_support" name="full_name">
+
+            <label for="phone_support">Phone</label>
+            <input type="tel" id="phone_support" name="phone">
+
+            <label for="email_support">Email</label>
+            <input type="email" id="email_support" name="email">
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+</div>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<script>
+    // DOM elements
+    const roleInputs = document.querySelectorAll('input[name="role"]');
+    const clientDetails = document.getElementById('client-details');
+    const adminDetails = document.getElementById('admin-details');
+    const supportDetails = document.getElementById('support-details');
+
+    // Toggle details based on selected role
+    function toggleDetails() {
+        const selectedRole = document.querySelector('input[name="role"]:checked')?.value;
+
+        // Hide all by default
+        clientDetails.style.display = 'none';
+        adminDetails.style.display = 'none';
+        supportDetails.style.display = 'none';
+
+        // Show the corresponding details
+        if (selectedRole === 'client') {
+            clientDetails.style.display = 'block';
+        } else if (selectedRole === 'admin') {
+            adminDetails.style.display = 'block';
+        } else if (selectedRole === 'support') {
+            supportDetails.style.display = 'block';
+        }
+    }
+
+    // Add event listeners
+    roleInputs.forEach(input => {
+        input.addEventListener('change', toggleDetails);
+    });
+
+    // Run toggleDetails on page load to ensure correct visibility
+    toggleDetails();
+</script>
+{% endblock %}

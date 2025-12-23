@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Tariffs{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manage Tariffs</h1>
+    <p>Here you can add, edit, or remove tariffs for car rentals.</p>
+
+    <!-- Button to open modal for adding tariff -->
+    <button id="addTariffBtn" class="btn">Add Tariff</button>
+
+    <!-- Tariffs Table -->
+    <div class="tariffs-container">
+        <div class="tariffs-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tariff ID</th>
+                        <th>Name</th>
+                        <th>Cost per Minute</th>
+                        <th>Cost per Hour</th>
+                        <th>Conditions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tariffsTableBody">
+                    {% for tariff in tariffs %}
+                    <tr id="tariff-{{ tariff.tariff_id }}">
+                        <td>{{ tariff.tariff_id }}</td>
+                        <td>{{ tariff.name }}</td>
+                        <td>{{ tariff.cost_per_minute }}</td>
+                        <td>{{ tariff.cost_per_hour }}</td>
+                        <td>{{ tariff.conditions }}</td>
+                        <td>
+                            <!-- Delete button for tariff -->
+                            <button class="deleteTariffBtn btn btn-danger" data-id="{{ tariff.tariff_id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for adding tariff -->
+<div id="addTariffModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Tariff</h2>
+        <form id="addTariffForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="cost_per_minute">Cost per Minute:</label>
+            <input type="number" id="cost_per_minute" name="cost_per_minute" required>
+            
+            <label for="cost_per_hour">Cost per Hour:</label>
+            <input type="number" id="cost_per_hour" name="cost_per_hour" required>
+            
+            <label for="conditions">Conditions:</label>
+            <textarea id="conditions" name="conditions"></textarea>
+            
+            <button type="submit" class="btn">Add Tariff</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Deleting tariff record
+document.querySelectorAll('.deleteTariffBtn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const tariffId = btn.getAttribute("data-id");
+        const response = await fetch(`/tariffs/delete/${tariffId}`, {
+            method: 'DELETE',
+        });
+        if (response.ok) {
+            document.getElementById(`tariff-${tariffId}`).remove();
+        } else {
+            alert("Failed to delete tariff.");
+        }
+    });
+});
+
+// Modal handling for adding tariff
+document.getElementById("addTariffBtn").addEventListener("click", function() {
+    document.getElementById("addTariffModal").style.display = "block";
+});
+
+document.querySelector(".close").addEventListener("click", function() {
+    document.getElementById("addTariffModal").style.display = "none";
+});
+
+window.addEventListener("click", function(event) {
+    if (event.target === document.getElementById("addTariffModal")) {
+        document.getElementById("addTariffModal").style.display = "none";
+    }
+});
+
+// Handle the form submission for adding tariff
+document.getElementById("addTariffForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const response = await fetch('/tariffs/add', {
+        method: 'POST',
+        body: new URLSearchParams(formData),
+    });
+    if (response.ok) {
+        location.reload();
+    } else {
+        alert("Failed to add tariff.");
+    }
+});
+</script>
+
+{% endblock %}

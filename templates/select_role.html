@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Role{% endblock %}
+
+{% block content %}
+<div class="role-select-container">
+    <h1>Select Your Role</h1>
+    <form method="POST" action="{{ url_for('auth.select_role') }}">
+        <div class="role-select">
+            <label>
+                <input type="radio" name="role" value="admin" required>
+                Admin
+            </label>
+            <label>
+                <input type="radio" name="role" value="client">
+                Client
+            </label>
+            <label>
+                <input type="radio" name="role" value="support">
+                Support
+            </label>
+        </div>
+        <button type="submit" class="btn">Proceed</button>
+    </form>
+</div>
+{% endblock %}

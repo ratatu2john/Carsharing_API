@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Rentals{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manage Rentals</h1>
+    <p>Here you can add, edit, or remove rentals from the system.</p>
+
+    <!-- Кнопка для добавления аренды -->
+    <button id="addRentalBtn" class="btn">Add Rental</button>
+
+    <!-- Таблица аренды -->
+    <div class="rentals-container">
+        <div class="rentals-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rental ID</th>
+                        <th>User ID</th>
+                        <th>Car ID</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Cost</th>
+                        <th>Tariff ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rentalsTableBody">
+                    {% for rental in rentals %}
+                    <tr id="rental-{{ rental.rental_id }}">
+                        <td>{{ rental.rental_id }}</td>
+                        <td>{{ rental.user_id }}</td>
+                        <td>{{ rental.car_id }}</td>
+                        <td>{{ rental.rental_start_date }}</td>
+                        <td>{{ rental.rental_end_date }}</td>
+                        <td>{{ rental.rental_cost }}</td>
+                        <td>{{ rental.tariff_id }}</td>
+                        <td>
+                            <button class="deleteRentalBtn btn btn-danger" data-id="{{ rental.rental_id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для добавления аренды -->
+<div id="addRentalModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Rental</h2>
+        <form id="addRentalForm">
+            <label for="user_id">User ID:</label>
+            <input type="text" id="user_id" name="user_id" required>
+
+            <label for="car_id">Car ID:</label>
+            <input type="text" id="car_id" name="car_id" required>
+
+            <label for="rental_start_date">Rental Start Date:</label>
+            <input type="date" id="rental_start_date" name="rental_start_date" required>
+
+            <label for="rental_end_date">Rental End Date:</label>
+            <input type="date" id="rental_end_date" name="rental_end_date">
+
+            <label for="rental_cost">Rental Cost:</label>
+            <input type="number" id="rental_cost" name="rental_cost" required>
+
+            <label for="tariff_id">Tariff ID:</label>
+            <input type="text" id="tariff_id" name="tariff_id" required>
+
+            <button type="submit" class="btn">Add Rental</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Открытие модального окна
+document.getElementById("addRentalBtn").addEventListener("click", function () {
+    document.getElementById("addRentalModal").style.display = "block";
+});
+
+// Закрытие модального окна
+document.querySelector(".close").addEventListener("click", function () {
+    document.getElementById("addRentalModal").style.display = "none";
+});
+
+// Закрытие окна при клике вне модального
+window.addEventListener("click", function (event) {
+    if (event.target === document.getElementById("addRentalModal")) {
+        document.getElementById("addRentalModal").style.display = "none";
+    }
+});
+
+// Добавление аренды
+document.getElementById("addRentalForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const rentalData = Object.fromEntries(formData);
+
+    const response = await fetch('/rentals/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rentalData),
+    });
+
+    if (response.ok) {
+        location.reload();
+    }
+});
+
+// Удаление аренды
+document.querySelectorAll('.deleteRentalBtn').forEach(button => {
+    button.addEventListener('click', async function () {
+        const rentalId = button.dataset.id;
+
+        const response = await fetch(`/rentals/delete-rental/${rentalId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            document.getElementById(`rental-${rentalId}`).remove();
+        }
+    });
+});
+</script>
+{% endblock %}

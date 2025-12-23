@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Client Login{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h1>Client Login</h1>
+    <form method="POST" action="{{ url_for('auth.login_client') }}">
+        <!-- Поле для имени пользователя -->
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required placeholder="Enter your username">
+
+        <!-- Поле для пароля -->
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password">
+
+        <!-- Кнопка отправки -->
+        <button type="submit">Login</button>
+    </form>
+
+    <!-- Сообщения об ошибках -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}

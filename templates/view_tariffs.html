@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Tariffs{% endblock %}
+
+{% block content %}
+<div class="tariffs-container">
+    <h1>Available Tariffs</h1>
+    <div class="table-container">
+        <table class="tariffs-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Cost per Minute</th>
+                    <th>Cost per Hour</th>
+                    <th>Conditions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tariff in tariffs %}
+                <tr>
+                    <td>{{ tariff.name }}</td>
+                    <td>{{ tariff.cost_per_minute }}</td>
+                    <td>{{ tariff.cost_per_hour }}</td>
+                    <td>{{ tariff.conditions or 'No conditions' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Payments{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manage Payments</h1>
+    <p>Here you can view, edit, or delete payments made by clients.</p>
+
+    <!-- Button to open modal for adding payment -->
+    <button id="addPaymentBtn" class="btn">Add Payment</button>
+
+    <!-- Payments Table -->
+    <div class="payments-container">
+        <div class="payments-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Rental ID</th>
+                        <th>Payment Date</th>
+                        <th>Payment Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTableBody">
+                    {% for payment in payments %}
+                    <tr id="payment-{{ payment.payment_id }}">
+                        <td>{{ payment.payment_id }}</td>
+                        <td>{{ payment.rental_id }}</td>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>{{ payment.payment_amount }}</td>
+                        <td>{{ payment.status }}</td>
+                        <td>
+                            <!-- Delete button for payment -->
+                            <button class="deletePaymentBtn btn btn-danger" data-id="{{ payment.payment_id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for adding payment -->
+<div id="addPaymentModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Payment</h2>
+        <form id="addPaymentForm">
+            <label for="rental_id">Rental ID:</label>
+            <input type="text" id="rental_id" name="rental_id" required>
+
+            <label for="payment_date">Payment Date:</label>
+            <input type="datetime-local" id="payment_date" name="payment_date" required>
+
+            <label for="payment_amount">Payment Amount:</label>
+            <input type="number" id="payment_amount" name="payment_amount" required>
+
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" required>
+
+            <button type="submit" class="btn">Add Payment</button>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    // Удаление аренды
+document.querySelectorAll('.deletePaymentBtn').forEach(button => {
+    button.addEventListener('click', async function () {
+        const paymentId = button.dataset.id;
+
+        const response = await fetch(`/payment/delete-payment/${paymentId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            document.getElementById(`payment-${paymentId}`).remove();
+        }
+    });
+});
+
+// Delete payment handler
+document.querySelectorAll('.deletePaymentBtn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const paymentId = btn.getAttribute("data-id");
+        console.log(`Attempting to delete payment with ID: ${paymentId}`); // For debugging
+        try {
+            const response = await fetch(`/payment/delete-payment/${paymentId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                console.log(`Payment ID ${paymentId} deleted successfully`); // For debugging
+                document.getElementById(`payment-${paymentId}`).remove();
+            } else {
+                const error = await response.json();
+                console.error(`Error deleting payment: ${error.message}`); // For debugging
+                alert("Failed to delete payment: " + error.message);
+            }
+        } catch (e) {
+            console.error(`Fetch error: ${e.message}`); // For debugging
+            alert("Failed to delete payment.");
+        }
+    });
+});
+
+// Modal handling for adding payment
+document.getElementById("addPaymentBtn").addEventListener("click", function() {
+    document.getElementById("addPaymentModal").style.display = "block";
+});
+
+document.querySelector(".close").addEventListener("click", function() {
+    document.getElementById("addPaymentModal").style.display = "none";
+});
+
+window.addEventListener("click", function(event) {
+    if (event.target === document.getElementById("addPaymentModal")) {
+        document.getElementById("addPaymentModal").style.display = "none";
+    }
+});
+
+// Handle the form submission for adding payment
+document.getElementById("addPaymentForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    // Collect the form data
+    const formData = new FormData(this);
+    const paymentData = {};
+    formData.forEach((value, key) => {
+        paymentData[key] = value;
+    });
+
+    const response = await fetch('/payments/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // Sending JSON
+        },
+        body: JSON.stringify(paymentData),  // Convert to JSON
+    });
+
+    if (response.ok) {
+        const newPayment = await response.json();
+
+        // Dynamically add new payment to the table
+        const tableBody = document.getElementById("paymentsTableBody");
+        const newRow = document.createElement("tr");
+        newRow.id = `payment-${newPayment.payment_id}`;
+        newRow.innerHTML = `
+            <td>${newPayment.payment_id}</td>
+            <td>${newPayment.rental_id}</td>
+            <td>${newPayment.payment_date}</td>
+            <td>${newPayment.payment_amount}</td>
+            <td>${newPayment.status}</td>
+            <td><button class="deletePaymentBtn btn btn-danger" data-id="${newPayment.payment_id}">Delete</button></td>
+        `;
+        tableBody.appendChild(newRow);
+
+        // Reset form and close modal
+        document.getElementById("addPaymentForm").reset();
+        document.getElementById("addPaymentModal").style.display = "none";
+    } else {
+        alert("Failed to add payment.");
+    }
+});
+</script>
+
+{% endblock %}
